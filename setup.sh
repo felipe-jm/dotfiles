@@ -65,7 +65,9 @@ pyenv install 3.11.0
 pyenv global 3.11.0
 
 # Instalando tema spaceship
-git clone --depth=1 https://github.com/spaceship-prompt/spaceship-prompt.git "$HOME/.zsh/spaceship"
+git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt"
+
+ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
 
 ### Finalização
 cd ~ && mkdir ./Developer
