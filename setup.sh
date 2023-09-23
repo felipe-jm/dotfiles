@@ -1,16 +1,12 @@
 #!/bin/bash
 
-# XCode
-xcode-select --install
-
-# Atualizar o Homebrew (ou instalar se não estiver instalado)
 if ! command -v brew &> /dev/null; then
-    echo "Homebrew não encontrado. Instalando..."
+    echo "Homebrew não encontrado! Cancelando execução.."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-else
-    echo "Atualizando Homebrew..."
-    brew update
 fi
+
+# Instalar Rosetta
+softwareupdate --install-rosetta
 
 # Instalar Zsh (já deve estar instalado no macOS, mas por precaução)
 echo "Instalando Zsh..."
@@ -33,9 +29,6 @@ cd ~/.dotfiles
 ln -s ~/.dotfiles/.zshrc ~/.zshrc
 ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 
-### Install Homebrew packages
-brew bundle --file ~/.dotfiles/Brewfile
-
 # Instalar NVM
 echo "Instalando NVM..."
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
@@ -51,17 +44,20 @@ brew install --cask docker
 
 # Criando containers do postgres, mongo e redis
 echo "Puxando imagem do Docker para PostgreSQL..."
-sudo docker run --name postgres -e POSTGRES_PASSWORD=docker -p 5432:5432 -d postgres
+docker run --name postgres -e POSTGRES_PASSWORD=docker -p 5432:5432 -d postgres
 
 echo "Puxando imagem do Docker para Mongo..."
-sudo docker run --name mongo -p 27017:27017 -d -t mongo
+docker run --name mongo -p 27017:27017 -d -t mongo
 
 echo "Puxando imagem do Docker para Redis..."
-sudo docker run --name redis -p 6379:6379 -d -t redis:alpine
+docker run --name redis -p 6379:6379 -d -t redis:alpine
 
 # Instalar Yarn
 echo "Instalando Yarn..."
 npm install --global yarn
+
+# Instalar pyenv
+brew install pyenv
 
 # Instalar Python 3.11 via pyenv
 echo "Instalando Python 3.11 via pyenv..."
