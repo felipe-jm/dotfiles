@@ -3,9 +3,9 @@
 ## Run it
 
 ```bash
-# XCode
 chmod +x setup.sh
 
+# XCode
 xcode-select --install
 
 echo "Homebrew não encontrado. Instalando..."
