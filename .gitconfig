@@ -1,0 +1,7 @@
+[user]
+	name = Felipe Jung
+	email = 46573395+felipe-jm@users.noreply.github.com
+[pull]
+	rebase = true
+[init]
+	defaultBranch = main
