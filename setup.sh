@@ -49,9 +49,14 @@ nvm install --lts
 echo "Instalando Docker..."
 brew install --cask docker
 
-# Criando imagens do postgres, mongo e redis
+# Criando containers do postgres, mongo e redis
+echo "Puxando imagem do Docker para PostgreSQL..."
 sudo docker run --name postgres -e POSTGRES_PASSWORD=docker -p 5432:5432 -d postgres
+
+echo "Puxando imagem do Docker para Mongo..."
 sudo docker run --name mongo -p 27017:27017 -d -t mongo
+
+echo "Puxando imagem do Docker para Redis..."
 sudo docker run --name redis -p 6379:6379 -d -t redis:alpine
 
 # Instalar Yarn
@@ -63,7 +68,7 @@ echo "Instalando Python 3.11 via pyenv..."
 pyenv install 3.11.0
 pyenv global 3.11.0
 
-# Install spaceship ZSH theme
+# Instalando tema spaceship
 git clone --depth=1 https://github.com/spaceship-prompt/spaceship-prompt.git "$HOME/.zsh/spaceship"
 
 ### Finalização
