@@ -5,9 +5,6 @@ if ! command -v brew &> /dev/null; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-# Instalar Rosetta
-/usr/sbin/softwareupdate --install-rosetta --agree-to-license
-
 # Instalar Zsh (já deve estar instalado no macOS, mas por precaução)
 echo "Instalando Zsh..."
 brew install zsh
