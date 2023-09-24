@@ -53,9 +53,6 @@ docker run --name redis -p 6379:6379 -d -t redis:alpine
 echo "Instalando Yarn..."
 npm install --global yarn
 
-# Instalar pyenv
-brew install pyenv
-
 # Instalar Python 3.11 via pyenv
 echo "Instalando Python 3.11 via pyenv..."
 pyenv install 3.11.0
