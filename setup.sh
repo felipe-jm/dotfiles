@@ -12,14 +12,6 @@ brew install zsh
 # Definir Zsh como shell padrão (opcional)
 chsh -s $(which zsh)
 
-# Instalar Oh My Zsh
-echo "Instalando Oh My Zsh..."
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-
-### Oh My ZSH
-sudo sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-rm -rf ~/.zshrc
-
 ### Setup dotfiles
 git clone --recurse-submodules https://github.com/felipe-jm/dotfiles.git ~/.dotfiles
 cd ~/.dotfiles
@@ -57,6 +49,11 @@ npm install --global yarn
 echo "Instalando Python 3.11 via pyenv..."
 pyenv install 3.11.0
 pyenv global 3.11.0
+
+### Instalar Oh My ZSH
+echo "Instalando Oh My Zsh..."
+sudo sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+rm -rf ~/.zshrc
 
 # Instalando tema spaceship
 git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt"
