@@ -5,7 +5,6 @@ if ! command -v brew &> /dev/null; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-# Instalar Zsh (já deve estar instalado no macOS, mas por precaução)
 echo "Instalando Zsh..."
 brew install zsh
 
@@ -18,18 +17,14 @@ cd ~/.dotfiles
 ln -s ~/.dotfiles/.zshrc ~/.zshrc
 ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 
-# Instalar NVM
 echo "Instalando NVM..."
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
 
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
 
+echo "Instalando versão LTS do Node"
 nvm install --lts
-
-# Instalar Docker
-echo "Instalando Docker..."
-brew install --cask docker
 
 # Criando containers do postgres, mongo e redis
 echo "Puxando imagem do Docker para PostgreSQL..."
