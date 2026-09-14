@@ -12,10 +12,10 @@ brew install zsh
 chsh -s $(which zsh)
 
 ### Setup dotfiles
-git clone --recurse-submodules https://github.com/felipe-jm/dotfiles.git ~/.dotfiles
+if [ ! -d ~/.dotfiles ]; then
+  git clone --recurse-submodules https://github.com/felipe-jm/dotfiles.git ~/.dotfiles
+fi
 cd ~/.dotfiles
-ln -s ~/.dotfiles/.zshrc ~/.zshrc
-ln -s ~/.dotfiles/.gitconfig ~/.gitconfig
 
 echo "Instalando NVM..."
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
@@ -45,7 +45,17 @@ git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/theme
 
 ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
 
+### herdr - runtime dos agentes de codigo (nao esta no Homebrew)
+if ! command -v herdr &> /dev/null; then
+    echo "Instalando herdr..."
+    curl -fsSL https://herdr.dev/install.sh | sh
+fi
+
+### Symlinks de configuracao (zsh, git, ghostty, herdr, aerospace, scripts)
+echo "Criando symlinks de configuracao..."
+~/.dotfiles/link.sh
+
 ### Finalização
-cd ~ && mkdir ./Developer
+cd ~ && mkdir -p ./Developer
 
 echo "Todas as ferramentas foram instaladas!"

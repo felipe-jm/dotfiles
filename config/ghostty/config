@@ -1,0 +1,110 @@
+# ---- Ghostty config (otimizado p/ Jcode + tmux) ----
+
+# Aparência
+theme = Catppuccin Mocha
+font-family = "JetBrainsMono Nerd Font"
+font-size = 14
+font-thicken = true
+adjust-cell-height = 12%
+cursor-style = block
+cursor-style-blink = false
+background-opacity = 0.97
+window-padding-x = 10
+window-padding-y = 6
+window-padding-balance = true
+window-decoration = auto
+macos-titlebar-style = tabs
+# Option esquerdo = Alt (p/ tmux panes). AeroSpace usa Option+letras/numeros.
+macos-option-as-alt = left
+
+# Performance / buffer
+scrollback-limit = 10000000
+window-vsync = true
+
+# Shell integration (cwd, prompt marks, sudo)
+shell-integration = zsh
+shell-integration-features = cursor,sudo,title
+
+# Copiar seleção automaticamente
+copy-on-select = clipboard
+clipboard-read = allow
+clipboard-write = allow
+clipboard-paste-protection = true
+
+# Não perguntar ao fechar
+confirm-close-surface = false
+quit-after-last-window-closed = true
+
+# Quick terminal global (Cmd+`) - terminal flutuante
+keybind = global:cmd+grave_accent=toggle_quick_terminal
+quick-terminal-position = top
+quick-terminal-animation-duration = 0.1
+
+# Atalhos úteis
+keybind = cmd+k=clear_screen
+keybind = cmd+shift+r=reload_config
+keybind = cmd+plus=increase_font_size:1
+keybind = cmd+minus=decrease_font_size:1
+# Cmd+0 fica reservado p/ o goto do herdr.
+# Reset de fonte movido para Cmd+Shift+0.
+keybind = cmd+shift+zero=reset_font_size
+
+# ---- herdr: Cmd+... -> prefix (ctrl+b) + acao ----
+# Cada atalho envia ctrl+b (prefix do herdr) seguido da tecla de acao.
+# Ctrl+A continua livre para o Jcode. Cmd+N/T/W/D/Enter sao itens de menu
+# do macOS e nao podem ser remapeados.
+
+# Trocar de aba: Cmd+1..9 ; Cmd+0 abre o goto
+keybind = super+zero=text:\x02g
+keybind = super+one=text:\x021
+keybind = super+two=text:\x022
+keybind = super+three=text:\x023
+keybind = super+four=text:\x024
+keybind = super+five=text:\x025
+keybind = super+six=text:\x026
+keybind = super+seven=text:\x027
+keybind = super+eight=text:\x028
+keybind = super+nine=text:\x029
+# Cmd+Ctrl+0 -> ultima aba (fallback util)
+keybind = super+ctrl+zero=text:\x02p
+# Cmd+Ctrl+W -> fechar a aba atual do herdr
+# Obs: Cmd+W puro e' item de menu do macOS e fecharia o Ghostty.
+keybind = super+ctrl+w=text:\x02X
+
+# *** Cmd+Shift+N -> NOVA ABA COM JCODE (abre direto, nomeia sozinha) ***
+keybind = super+shift+n=text:\x02J
+# Cmd+Shift+T -> nova aba de shell
+keybind = super+shift+t=text:\x02c
+# Cmd+Shift+E -> goto (seletor)
+keybind = super+shift+e=text:\x02g
+# Cmd+Shift+S -> navegacao de workspaces
+keybind = super+shift+s=text:\x02w
+# Cmd+Shift+Enter -> zoom no pane
+keybind = super+shift+enter=text:\x02z
+# Splits
+keybind = super+ctrl+d=text:\x02v
+keybind = super+ctrl+shift+d=text:\x02-
+
+# Trocar de projeto (workspace): Cmd+Shift+1..9 -> ctrl+b + shift+N
+keybind = super+shift+one=text:\x02!
+keybind = super+shift+two=text:\x02@
+keybind = super+shift+three=text:\x02#
+keybind = super+shift+four=text:\x02$
+keybind = super+shift+five=text:\x02%
+keybind = super+shift+six=text:\x02^
+keybind = super+shift+seven=text:\x02&
+keybind = super+shift+eight=text:\x02*
+keybind = super+shift+nine=text:\x02(
+
+# Navegacao sequencial (mao esquerda, sem depender do numero da aba)
+# Cmd+Shift+[ / Cmd+Shift+] -> aba anterior / proxima
+keybind = super+shift+left_bracket=text:\x02p
+keybind = super+shift+right_bracket=text:\x02n
+# Cmd+Ctrl+[ / Cmd+Ctrl+] -> workspace anterior / proximo
+keybind = super+ctrl+left_bracket=text:\x02[
+keybind = super+ctrl+right_bracket=text:\x02]
+# Cmd+Ctrl+, / Cmd+Ctrl+. -> agente anterior / proximo (pula direto p/ quem esta rodando)
+keybind = super+ctrl+comma=text:\x02,
+keybind = super+ctrl+period=text:\x02.
+# Cmd+Ctrl+Tab -> alterna entre os dois ultimos panes
+keybind = super+ctrl+tab=text:\x02\t

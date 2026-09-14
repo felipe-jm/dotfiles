@@ -1,0 +1,224 @@
+#!/usr/bin/env bash
+# Renomeia automaticamente as abas herdr que rodam Jcode, resumindo em poucas
+# palavras o primeiro pedido real da sessao, e reporta o agente/summary na sidebar.
+#
+#   herdr-jcode-autoname --once            uma varredura
+#   herdr-jcode-autoname --daemon          loop
+#   herdr-jcode-autoname --ensure-daemon   sobe o daemon se nao estiver rodando
+#
+# So renomeia abas com nome provisorio (jcode, jcode-2, ... ou numerico).
+# Abas renomeadas a mao nunca sao tocadas.
+set -euo pipefail
+
+SESS_DIR="$HOME/.jcode/sessions"
+HERDR="${HERDR_BIN_PATH:-herdr}"
+LOCK="${TMPDIR:-/tmp}/herdr-jcode-autoname.pid"
+STATE_DIR="$HOME/.local/state/herdr-jcode-autoname"
+mkdir -p "$STATE_DIR"
+
+SUMMARIZE_PY=$(cat <<'PY'
+import re, sys, unicodedata
+
+text = sys.argv[1]
+text = re.sub(r"<system-reminder>.*?</system-reminder>", " ", text, flags=re.S)
+text = re.sub(r"```.*?```", " ", text, flags=re.S)
+text = re.sub(r"https?://\S+", " ", text)
+text = re.sub(r"\s+", " ", text).strip()
+if not text:
+    sys.exit(1)
+
+first = re.split(r"(?<=[.!?])\s+", text)[0][:220]
+
+VERBS = [
+    (r"^(?:(?:adicion\w+|cri\w+|crie|escrev\w+|implement\w+|faz\w*|faça)\s+(?:os\s+|as\s+|um\s+|uns\s+)?teste?s?\b|test\w+)", "Testes"),
+    (r"^(corrig\w+|corrija\w*|conserta\w*|conserte\w*|arrum\w*|fix\w*|resolv\w*|resolva\w*)\b", "Correção"),
+    (r"^(ajust\w+|tunin\w*|afin\w*)\b", "Ajuste"),
+    (r"^(implement\w+|cria\w*|crie|adicion\w+|add\w*|faz\w*|faça|construa\w*)\b", "Novo"),
+    (r"^(refator\w+|reescrev\w+|limp\w+|remov\w+|delet\w+|exclu\w+)\b", "Refatoração"),
+    (r"^(investig\w+|analis\w+|entend\w+|descubr\w+|verific\w+|debug\w*|depur\w+)\b", "Investigação"),
+    (r"^(procur\w+|busca\w*|encontr\w+|ache|localiz\w+)\b", "Busca"),
+    (r"^(document\w+|escrev\w+ doc\w*)\b", "Documentação"),
+    (r"^(atualiz\w+|migra\w*|upgrade\w*|sobe\w*)\b", "Atualização"),
+    (r"^(configur\w+|setup|instal\w+)\b", "Configuração"),
+]
+
+# remove muletas iniciais para o verbo aparecer no comeco
+FILLER = r"(agora|entao|então|enfim|dai|daí|ai|aí|ok|beleza|blz|vamos|vamo|bora|" \
+         r"preciso|quero|queria|gostaria|pode|poderia|consegue|da pra|dá pra|" \
+         r"por favor|favor|me ajuda|ajuda|vc|voce|você|que|a|de)"
+first = re.sub(rf"^(\s*{FILLER}\b[,:]?\s*)+", "", first, flags=re.I)
+
+prefix = ""
+low = first.lower()
+for pat, label in VERBS:
+    m = re.match(pat, low)
+    if m:
+        prefix = label
+        first = first[m.end():]
+        break
+
+STOP = set("""a o as os um uma uns umas de do da dos das em no na nos nas por para pra
+pelo pela ao aos à às e ou que se me meu minha minhas meus eu você voce vc nós nos
+quero queria gostaria preciso pode poderia favor agora aqui esse essa este esta isso
+aquilo com sem mais menos muito bem ta tá então entao ai aí é the a an of to in on for
+please i want need my is are it this that""".split())
+
+KEEP = re.compile(r"^(#\d+|[A-Z]{2,}(-\w+)?|[\w.-]+\.(py|ts|tsx|js|jsx|rs|go|md|toml|json))$")
+
+words = re.findall(r"#?[\wÀ-ÿ][\wÀ-ÿ.#/-]*", first)
+out = []
+for w in words:
+    if KEEP.match(w):
+        out.append(w)
+    elif w.lower() in STOP or len(w) <= 1:
+        continue
+    else:
+        out.append(w if w.isupper() else w[:1].upper() + w[1:])
+    if len(out) >= (3 if prefix else 4):
+        break
+
+parts = ([prefix] if prefix else []) + out
+title = ""
+for p in parts:
+    cand = (title + " " + p).strip()
+    if len(cand) > 26:
+        break
+    title = cand
+
+title = unicodedata.normalize("NFC", title).strip(" -–—:,.")
+if not title:
+    sys.exit(1)
+print(title)
+PY
+)
+
+summarize() { python3 -c "$SUMMARIZE_PY" "$1"; }
+
+first_prompt() {  # $1 = arquivo de sessao -> melhor pedido disponivel ate agora
+  python3 - "$1" <<'PY'
+import json, os, re, sys
+
+path = sys.argv[1]
+prompts = []
+
+def collect(messages):
+    for m in messages or []:
+        if m.get("role") != "user" or m.get("display_role") == "system":
+            continue
+        txt = " ".join(c.get("text", "") for c in m.get("content", [])
+                       if isinstance(c, dict) and c.get("type") == "text").strip()
+        txt = re.sub(r"<system-reminder>.*?</system-reminder>", " ", txt, flags=re.S).strip()
+        if txt:
+            prompts.append(txt)
+
+try:
+    collect(json.load(open(path)).get("messages"))
+except Exception:
+    pass
+
+# o turno em andamento so existe no journal; le-lo mantem o nome atualizado
+journal = (path[:-5] if path.endswith(".json") else path) + ".journal.jsonl"
+if os.path.exists(journal):
+    try:
+        for line in open(journal):
+            line = line.strip()
+            if line:
+                collect(json.loads(line).get("append_messages"))
+    except Exception:
+        pass
+
+if not prompts:
+    sys.exit(1)
+
+# saudacoes, testes e respostas curtas nao descrevem a sessao
+NOISE = re.compile(
+    r"^(oi|ola|olá|eai|e aí|hey|hi|hello|bom dia|boa tarde|boa noite|teste|test|"
+    r"ok|okay|blz|beleza|valeu|obrigad\w*|sim|nao|não|isso|certo|pode|continua\w*|"
+    r"vai|manda|segue|proximo|próximo|thanks|yes|no)\b", re.I)
+
+def useful(t):
+    if NOISE.match(t):
+        # so aceita a saudacao se ela vier com um pedido junto e longo
+        return len(t.split()) >= 8
+    return len(t.split()) >= 3
+
+for p in prompts:
+    if useful(p):
+        print(p)
+        sys.exit(0)
+
+print(prompts[0])
+PY
+}
+
+# agentes jcode: "<pane_id>\t<tab_id>\t<tab_label>\t<terminal_title>"
+jcode_panes() {
+  agents=$("$HERDR" agent list 2>/dev/null) || return 0
+  tabs=$("$HERDR" tab list 2>/dev/null) || return 0
+  python3 - "$agents" "$tabs" <<'PY'
+import json, sys
+agents = json.loads(sys.argv[1])["result"]["agents"]
+tabs = {t["tab_id"]: t for t in json.loads(sys.argv[2])["result"]["tabs"]}
+for a in agents:
+    if a.get("agent") != "jcode":
+        continue
+    t = tabs.get(a.get("tab_id"), {})
+    print(a["pane_id"], a.get("tab_id", ""), t.get("label", ""),
+          a.get("terminal_title", ""), sep="\t")
+PY
+}
+
+pane_session_file() {  # $1 = terminal_title, ex "🦆 jcode Duck"
+  local name
+  name=$(printf '%s' "$1" | awk '{print tolower($NF)}')
+  [[ -z "$name" || "$name" == "jcode" ]] && return 1
+  ls -t "$SESS_DIR"/session_"$name"_*.json 2>/dev/null | head -1
+}
+
+scan_once() {
+  while IFS=$'\t' read -r pane tab label title; do
+    [[ -n "$pane" ]] || continue
+    f=$(pane_session_file "$title") || continue
+    [[ -n "${f:-}" && -f "$f" ]] || continue
+    sid=$(basename "$f" .json)
+    owned="$STATE_DIR/${sid}.name"
+
+    prompt=$(first_prompt "$f") || continue
+    new=$(summarize "$prompt") || continue
+
+    # Renomeia se a aba ainda e' provisoria, se o nome atual foi gerado por nos
+    # (arquivo de estado), ou se ele bate com o resumo atual (adocao).
+    # Nome escolhido a mao nunca e' sobrescrito.
+    if [[ ! "$label" =~ ^(jcode(-[0-9]+)?|[0-9]+)$ ]]; then
+      if [[ -f "$owned" && "$(cat "$owned")" == "$label" ]]; then
+        :
+      elif [[ "$new" == "$label" ]]; then
+        printf '%s' "$label" > "$owned"   # adota o nome que nos mesmos geramos
+      else
+        continue
+      fi
+    fi
+
+    [[ "$new" == "$label" ]] && continue
+
+    "$HERDR" tab rename "$tab" "$new" >/dev/null 2>&1 || continue
+    printf '%s' "$new" > "$owned"
+    "$HERDR" pane report-metadata "$pane" --source jcode-autoname \
+      --token summary="$new" >/dev/null 2>&1 || true
+    jcode session rename "$sid" "$new" >/dev/null 2>&1 || true
+  done < <(jcode_panes)
+}
+
+case "${1:---once}" in
+  --once) scan_once ;;
+  --daemon)
+    echo $$ > "$LOCK"
+    trap 'rm -f "$LOCK"' EXIT
+    while "$HERDR" status server >/dev/null 2>&1; do scan_once; sleep 5; done
+    ;;
+  --ensure-daemon)
+    if [[ -f "$LOCK" ]] && kill -0 "$(cat "$LOCK" 2>/dev/null)" 2>/dev/null; then exit 0; fi
+    nohup "$0" --daemon >/dev/null 2>&1 &
+    ;;
+  *) echo "uso: $0 [--once|--daemon|--ensure-daemon]" >&2; exit 2 ;;
+esac

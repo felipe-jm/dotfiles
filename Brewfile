@@ -26,17 +26,20 @@ brew "libpq"
 cask "chromium"
 cask "flameshot"
 cask "ngrok"
-cask "warp"
 cask "discord"
 cask "dbeaver-community"
 cask "notion"
 cask "obsidian"
 cask "arc"
 cask "skype"
-cask "fig"
 cask "visual-studio-code"
 cask "figma"
 cask "tiles"
 cask "spotify"
 cask "libreoffice"
 cask "docker"
+
+# ---- Terminal + runtime dos agentes ----
+cask "ghostty"          # terminal (config em config/ghostty)
+cask "nikitabobko/tap/aerospace" # window manager (config em config/aerospace)
+# herdr nao esta no brew: curl -fsSL https://herdr.dev/install.sh | sh

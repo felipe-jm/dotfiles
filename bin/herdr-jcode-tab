@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Cria uma aba herdr rodando o Jcode, sem perguntar nada.
+# O nome definitivo da aba vem do herdr-jcode-autoname, que resume o primeiro
+# pedido real da sessao (ex.: "Ajuste Design System").
+set -euo pipefail
+
+herdr="${HERDR_BIN_PATH:-herdr}"
+cwd="${HERDR_ACTIVE_PANE_CWD:-$PWD}"
+
+out=$("$herdr" tab create --cwd "$cwd" --label jcode --focus)
+pane=$(printf '%s' "$out" | python3 -c 'import json,sys;print(json.load(sys.stdin)["result"]["root_pane"]["pane_id"])')
+
+"$herdr" pane send-text "$pane" 'clear; jcode' >/dev/null
+"$herdr" pane send-keys "$pane" enter >/dev/null
+
+~/.local/bin/herdr-jcode-autoname --ensure-daemon >/dev/null 2>&1 || true

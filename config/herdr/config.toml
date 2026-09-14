@@ -1,0 +1,56 @@
+# ---- herdr: runtime dos agentes (substitui o tmux) ----
+
+onboarding = false
+
+[theme]
+name = "terminal"
+
+auto_switch = false
+[terminal]
+shell_mode = "auto"
+new_cwd = "follow"
+
+[keys]
+prefix = "ctrl+b"
+switch_tab = "prefix+1..9"          # Cmd+1..9
+switch_workspace = "prefix+shift+1..9"   # projeto N
+focus_agent = "prefix+alt+1..9"          # pular direto para o agente N
+new_tab = "prefix+c"                # Cmd+Shift+T
+rename_tab = "prefix+shift+t"
+close_tab = "prefix+shift+x"        # Cmd+Ctrl+W
+previous_tab = "prefix+p"           # Cmd+Shift+[ e Cmd+Ctrl+0
+next_tab = "prefix+n"               # Cmd+Shift+]
+previous_agent = "prefix+comma"     # Cmd+Ctrl+, (agente anterior, qualquer workspace)
+next_agent = "prefix+."             # Cmd+Ctrl+. (proximo agente)
+previous_workspace = "prefix+["     # Cmd+Ctrl+[
+next_workspace = "prefix+]"         # Cmd+Ctrl+]
+last_pane = "prefix+tab"            # alterna entre os dois ultimos panes
+split_vertical = "prefix+v"         # Cmd+Ctrl+D
+split_horizontal = "prefix+minus"   # Cmd+Ctrl+Shift+D
+zoom = "prefix+z"                   # Cmd+Shift+Enter
+goto = "prefix+g"                   # Cmd+0 / Cmd+Shift+E
+workspace_picker = "prefix+w"       # Cmd+Shift+S
+toggle_sidebar = "prefix+b"
+detach = "prefix+q"
+
+# Nova aba com Jcode rodando, ja marcada para o auto-nome
+# Obs: prefix+j e' focus_pane_down por padrao, entao usamos prefix+shift+j.
+[[keys.command]]
+key = "prefix+shift+j"
+type = "shell"
+command = "~/.local/bin/herdr-jcode-tab"
+description = "nova aba com jcode"
+
+[ui]
+status_indicators = "symbols"
+window_title = "{workspace} · {tab}"
+
+[ui.sidebar.agents]
+rows = [
+  ["state_icon", "agent", "$summary"],
+  ["workspace", "tab"],
+]
+
+[ui.toast]
+delivery = "terminal"
+delay_seconds = 1
