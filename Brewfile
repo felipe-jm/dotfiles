@@ -43,3 +43,11 @@ cask "docker"
 cask "ghostty"          # terminal (config em config/ghostty)
 cask "nikitabobko/tap/aerospace" # window manager (config em config/aerospace)
 # herdr nao esta no brew: curl -fsSL https://herdr.dev/install.sh | sh
+
+# ---- Shell (dependencias do .zshrc) ----
+brew "powerlevel10k"
+brew "zsh-autosuggestions"
+brew "zsh-syntax-highlighting"
+brew "eza"
+brew "bat"
+brew "fzf"

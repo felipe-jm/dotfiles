@@ -21,6 +21,7 @@ link() {
 
 echo "Shell e git..."
 link "$DOTFILES/.zshrc"    "$HOME/.zshrc"
+link "$DOTFILES/.p10k.zsh" "$HOME/.p10k.zsh"
 link "$DOTFILES/.gitconfig" "$HOME/.gitconfig"
 
 echo "Ghostty (terminal)..."

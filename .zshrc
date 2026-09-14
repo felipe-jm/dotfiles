@@ -1,158 +1,179 @@
-# Fig pre block. Keep at the top of this file.
-[[ -f "$HOME/.fig/shell/zshrc.pre.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.pre.zsh"
-# If you come from bash you might have to change your $PATH.
-# export PATH=$HOME/bin:/usr/local/bin:$PATH
-
-# Path to your oh-my-zsh installation.
-export ZSH="$HOME/.oh-my-zsh"
-
-# Set name of the theme to load --- if set to "random", it will
-# load a random theme each time oh-my-zsh is loaded, in which case,
-# to know which specific one was loaded, run: echo $RANDOM_THEME
-# See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="spaceship"
-
-# Set list of themes to pick from when loading at random
-# Setting this variable when ZSH_THEME=random will cause zsh to load
-# a theme from this variable instead of looking in $ZSH/themes/
-# If set to an empty array, this variable will have no effect.
-# ZSH_THEME_RANDOM_CANDIDATES=( "robbyrussell" "agnoster" )
-
-# Uncomment the following line to use case-sensitive completion.
-# CASE_SENSITIVE="true"
-
-# Uncomment the following line to use hyphen-insensitive completion.
-# Case-sensitive completion must be off. _ and - will be interchangeable.
-# HYPHEN_INSENSITIVE="true"
-
-# Uncomment one of the following lines to change the auto-update behavior
-# zstyle ':omz:update' mode disabled  # disable automatic updates
-# zstyle ':omz:update' mode auto      # update automatically without asking
-# zstyle ':omz:update' mode reminder  # just remind me to update when it's time
-
-# Uncomment the following line to change how often to auto-update (in days).
-# zstyle ':omz:update' frequency 13
-
-# Uncomment the following line if pasting URLs and other text is messed up.
-# DISABLE_MAGIC_FUNCTIONS="true"
-
-# Uncomment the following line to disable colors in ls.
-# DISABLE_LS_COLORS="true"
-
-# Uncomment the following line to disable auto-setting terminal title.
-# DISABLE_AUTO_TITLE="true"
-
-# Uncomment the following line to enable command auto-correction.
-# ENABLE_CORRECTION="true"
-
-# Uncomment the following line to display red dots whilst waiting for completion.
-# You can also set it to another string to have that shown instead of the default red dots.
-# e.g. COMPLETION_WAITING_DOTS="%F{yellow}waiting...%f"
-# Caution: this setting can cause issues with multiline prompts in zsh < 5.7.1 (see #5765)
-# COMPLETION_WAITING_DOTS="true"
-
-# Uncomment the following line if you want to disable marking untracked files
-# under VCS as dirty. This makes repository status check for large repositories
-# much, much faster.
-# DISABLE_UNTRACKED_FILES_DIRTY="true"
-
-# Uncomment the following line if you want to change the command execution time
-# stamp shown in the history command output.
-# You can set one of the optional three formats:
-# "mm/dd/yyyy"|"dd.mm.yyyy"|"yyyy-mm-dd"
-# or set a custom format using the strftime function format specifications,
-# see 'man strftime' for details.
-# HIST_STAMPS="mm/dd/yyyy"
-
-# Would you like to use another custom folder than $ZSH/custom?
-# ZSH_CUSTOM=/path/to/new-custom-folder
-
-# Which plugins would you like to load?
-# Standard plugins can be found in $ZSH/plugins/
-# Custom plugins may be added to $ZSH_CUSTOM/plugins/
-# Example format: plugins=(rails git textmate ruby lighthouse)
-# Add wisely, as too many plugins slow down shell startup.
-plugins=(git)
-
-source $ZSH/oh-my-zsh.sh
-
-# User configuration
-
-# export MANPATH="/usr/local/man:$MANPATH"
-
-# You may need to manually set your language environment
-# export LANG=en_US.UTF-8
-
-# Preferred editor for local and remote sessions
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
-# Compilation flags
-# export ARCHFLAGS="-arch x86_64"
-
-# Set personal aliases, overriding those provided by oh-my-zsh libs,
-# plugins, and themes. Aliases can be placed here, though oh-my-zsh
-# users are encouraged to define aliases within the ZSH_CUSTOM folder.
-# For a full list of active aliases, run `alias`.
-#
-# Example aliases
-# alias zshconfig="mate ~/.zshrc"
-# alias ohmyzsh="mate ~/.oh-my-zsh"
-
-SPACESHIP_PROMPT_ORDER=(
-  user          # Username section
-  dir           # Current directory section
-  host          # Hostname section
-  git           # Git section (git_branch + git_status)
-  hg            # Mercurial section (hg_branch  + hg_status)
-  exec_time     # Execution time
-  line_sep      # Line break
-  vi_mode       # Vi-mode indicator
-  jobs          # Background jobs indicator
-  exit_code     # Exit code section
-  char          # Prompt character
-)
-SPACESHIP_USER_SHOW=always
-SPACESHIP_PROMPT_ADD_NEWLINE=false
-SPACESHIP_CHAR_SYMBOL="❯"
-SPACESHIP_CHAR_SUFFIX=" "
-### Added by Zinit's installer
-if [[ ! -f $HOME/.local/share/zinit/zinit.git/zinit.zsh ]]; then
-    print -P "%F{33} %F{220}Installing %F{33}ZDHARMA-CONTINUUM%F{220} Initiative Plugin Manager (%F{33}zdharma-continuum/zinit%F{220})…%f"
-    command mkdir -p "$HOME/.local/share/zinit" && command chmod g-rwX "$HOME/.local/share/zinit"
-    command git clone https://github.com/zdharma-continuum/zinit "$HOME/.local/share/zinit/zinit.git" && \
-        print -P "%F{33} %F{34}Installation successful.%f%b" || \
-        print -P "%F{160} The clone has failed.%f%b"
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-source "$HOME/.local/share/zinit/zinit.git/zinit.zsh"
-autoload -Uz _zinit
-(( ${+_comps} )) && _comps[zinit]=_zinit
-### End of Zinit's installer chunk
+# History setup
+HISTFILE=$HOME/.zhistory
+SAVEHIST=1000
+HISTSIZE=999
+setopt share_history
+setopt hist_expire_dups_first
+setopt hist_ignore_dups
+setopt hist_verify
+setopt appendhistory
 
-zinit light zdharma/fast-syntax-highlighting
-zinit light zsh-users/zsh-autosuggestions
-zinit light zsh-users/zsh-completions
-
+# Completion using arrow keys (based on history)
+bindkey '^[[A' history-search-backward
+bindkey '^[[B' history-search-forward
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
+export PATH="$HOME/.local/bin:$PATH"
+
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
+export PATH="/usr/local/bin:$PATH"
 
-export PATH="/opt/homebrew/opt/python@3.9/libexec/bin:$PATH"
+# Created by `pipx` on 2024-01-15 15:29:51
+export PATH="$PATH:/Users/felipejung/.local/bin"
 
-export PATH="/opt/homebrew/opt/php@8.0/bin:$PATH"
-export PATH="/opt/homebrew/opt/php@8.0/sbin:$PATH"
+export LDFLAGS="-L/opt/homebrew/opt/libffi/lib"
+export CPPFLAGS="-I/opt/homebrew/opt/libffi/include"
 
-# Fig post block. Keep at the bottom of this file.
-[[ -f "$HOME/.fig/shell/zshrc.post.zsh" ]] && builtin source "$HOME/.fig/shell/zshrc.post.zsh"
+export PKG_CONFIG_PATH="/opt/homebrew/opt/libffi/lib/pkgconfig"
 
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
+# Java configuration
+export JAVA_HOME=$(/usr/libexec/java_home -v 17)
+export PATH="$JAVA_HOME/bin:$PATH"
+export ANDROID_HOME=~/Library/Android/sdk
+export PATH=$PATH:$ANDROID_HOME/emulator
+export PATH=$PATH:$ANDROID_HOME/tools
+export PATH=$PATH:$ANDROID_HOME/tools/bin
+export PATH=$PATH:$ANDROID_HOME/platform-tools
+#
+eval "$(rbenv init - zsh)"
 
+# Added by Windsurf
+export PATH="/Users/felipejung/.codeium/windsurf/bin:$PATH"
+
+export HISTTIMEFORMAT="[%F %T] "
+
+# Added by Antigravity
+export PATH="/Users/felipejung/.antigravity/antigravity/bin:$PATH"
+source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+# ---- Eza (better ls) -----
+alias ls="eza --icons=always"
+
+# Alias for bat (cat with syntax highlighting)
+#alias cat="bat"
+
+# Alias to vim open nvim
+alias vim='nvim'
+
+# GCP project + zone default
+export CLOUDSDK_CORE_PROJECT=river-octagon-445615-p2
+export CLOUDSDK_COMPUTE_ZONE=us-east1-c
+
+# SSH por VM — todas via IAP
+alias gssh-cafe='gcloud compute ssh app-cafe --zone=us-east1-c --tunnel-through-iap'
+alias gssh-celery='gcloud compute ssh queue-celery --zone=us-east1-c --tunnel-through-iap'
+alias gssh-acucar='gcloud compute ssh db-acucar --zone=us-east1-c --tunnel-through-iap'
+alias gssh-algodao-app='gcloud compute ssh algodao-app --zone=us-east1-c --tunnel-through-iap'
+alias gssh-algodao-db='gcloud compute ssh algodao-db --zone=us-east1-c --tunnel-through-iap'
+alias gssh-nfr-app='gcloud compute ssh nfr-app --zone=us-east1-c --tunnel-through-iap'
+alias gssh-nfr-db='gcloud compute ssh nfr-db --zone=us-east1-c --tunnel-through-iap'
+alias gssh-fiscal-pdfs='gcloud compute ssh lucrorural-fiscal-pdfs --zone=us-east1-c --tunnel-through-iap'
+alias gssh-vendas='gcloud compute ssh lucrorural-vendas --zone=us-central1-c --tunnel-through-iap'
+alias gssh-cs='gcloud compute ssh lucrorural-cs --tunnel-through-iap --zone=us-central1-c'
+alias gssh-terminal='gcloud compute ssh terminal-app --tunnel-through-iap --zone=us-east1-c'
+
+# SCP equivalente
+alias gscp-cafe='gcloud compute scp --zone=us-east1-c --tunnel-through-iap'
+alias gscp-celery='gcloud compute scp --zone=us-east1-c --tunnel-through-iap'
+alias gscp-acucar='gcloud compute scp --zone=us-east1-c --tunnel-through-iap'
+alias gscp-algodao-app='gcloud compute scp --zone=us-east1-c --tunnel-through-iap'
+alias gscp-algodao-db='gcloud compute scp --zone=us-east1-c --tunnel-through-iap'
+alias gscp-vendas='gcloud compute scp --zone=us-central1-c --tunnel-through-iap'
+alias gscp-cs='gcloud compute scp --zone=us-central1-c --tunnel-through-iap'
+alias gscp-terminal='gcloud compute scp --zone=us-east1-c --tunnel-through-iap'
+
+# Prod
+alias tunnel-db-acucar='gcloud compute ssh app-cafe --zone=us-east1-c --tunnel-through-iap -- -L 5433:10.142.0.3:5432 -N'
+alias tunnel-db-nfr='gcloud compute ssh nfr-app --zone=us-east1-c --tunnel-through-iap -- -L 5434:10.142.0.8:5432 -N'
+
+# Staging
+alias tunnel-db-algodao='gcloud compute ssh algodao-app --zone=us-east1-c --tunnel-through-iap -- -L 5435:10.142.0.10:5432 -N'
+
+export PATH="$HOME/bin:$PATH"
+
+# opencode
+export PATH=/Users/felipejung/.opencode/bin:$PATH
+
+# Pyenv
+#export PYENV_ROOT="$HOME/.pyenv"
+#export PATH="$PYENV_ROOT/bin:$PATH"
+
+#eval "$(pyenv init - zsh)"
+
+# NOTION_TOKEN vive em ~/.zsh_secrets (nao versionado)
+
+alias claude-mem='/Users/felipejung/.bun/bin/bun "/Users/felipejung/.claude/plugins/cache/thedotmack/claude-mem/10.6.1/scripts/worker-service.cjs"'
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/felipejung/Developer/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/felipejung/Developer/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/felipejung/Developer/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/felipejung/Developer/google-cloud-sdk/completion.zsh.inc'; fi
+
+eval "$(zoxide init zsh)"
+
+export _ZO_DOCTOR=0
+
+# TERMINAL_API_KEY vive em ~/.zsh_secrets (nao versionado)
+
+# ---------- herdr workflow (Jcode) ----------
+# herdr e' o runtime dos agentes; substitui o tmux.
+alias hs='herdr status'
+alias hl='herdr workspace list'
+alias hk='herdr server stop'
+alias cheat='glow ~/.config/herdr-cheatsheet.md 2>/dev/null || bat ~/.config/herdr-cheatsheet.md 2>/dev/null || cat ~/.config/herdr-cheatsheet.md'
+
+# hw [nome]: workspace para o diretorio atual
+hw() {
+  local name="${1:-$(basename "$PWD")}"
+  herdr workspace create --cwd "$PWD" --label "$name" --focus >/dev/null
+}
+
+# tw <nome>: cria uma aba nomeada no workspace atual
+tw() {
+  local name="${1:?uso: tw <nome>}"
+  herdr tab create --cwd "$PWD" --label "$name" --focus >/dev/null
+}
+
+# jc: nova aba com Jcode rodando, nomeada automaticamente pelo primeiro pedido
+jc() { ~/.local/bin/herdr-jcode-tab; }
+
+# proj [nome]: workspace com as abas do fluxo Lucro Rural
+proj() {
+  local name="${1:-$(basename "$PWD")}" d="$PWD" t
+  herdr workspace create --cwd "$d" --label "$name" --focus >/dev/null
+  for t in shell git server logs; do
+    herdr tab create --cwd "$d" --label "$t" --no-focus >/dev/null
+  done
+  ~/.local/bin/herdr-jcode-tab
+}
+
+export PATH="$HOME/.local/bin:$PATH"
+
+# ---------- herdr: inicia automaticamente ----------
+# Os atalhos Cmd+... SO funcionam dentro do herdr.
+# Desative com: NO_HERDR=1 (ex.: `NO_HERDR=1 zsh`)
+if [[ -o interactive && -z "$HERDR_ENV" && -z "$TMUX" && -z "$NO_HERDR" \
+      && -z "$VSCODE_INJECTION" && -z "$INSIDE_EMACS" && "$TERM" != "dumb" ]] \
+   && command -v herdr >/dev/null 2>&1; then
+  exec herdr
+fi
+
+# Secrets locais (tokens, chaves). Nao versionado.
+[ -f ~/.zsh_secrets ] && source ~/.zsh_secrets

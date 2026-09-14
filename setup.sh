@@ -35,15 +35,10 @@ echo "Instalando Python 3.11 via pyenv..."
 pyenv install 3.11.0
 pyenv global 3.11.0
 
-### Instalar Oh My ZSH
-echo "Instalando Oh My Zsh..."
-sudo sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-rm -rf ~/.zshrc
-
-# Instalando tema spaceship
-git clone https://github.com/denysdovhan/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt"
-
-ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
+### Prompt e plugins do zsh
+# O .zshrc usa Powerlevel10k + zsh-autosuggestions + zsh-syntax-highlighting
+# instalados via Homebrew (ja vem no Brewfile). Oh My Zsh nao e mais usado.
+echo "Prompt: rode 'p10k configure' depois, se quiser reconfigurar."
 
 ### herdr - runtime dos agentes de codigo (nao esta no Homebrew)
 if ! command -v herdr &> /dev/null; then

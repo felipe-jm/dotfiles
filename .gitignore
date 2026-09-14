@@ -2,3 +2,4 @@
 *.bak
 *.bak.*
 Brewfile.lock.json
+.zsh_secrets
