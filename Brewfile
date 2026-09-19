@@ -15,6 +15,7 @@ brew "libxml2"
 brew "libxslt"
 brew "libyaml"
 brew "ncurses"
+brew "neovim"
 brew "openjdk"
 brew "openssl@3", link: false
 brew "pango"

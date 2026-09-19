@@ -27,6 +27,9 @@ link "$DOTFILES/.gitconfig" "$HOME/.gitconfig"
 echo "Ghostty (terminal)..."
 link "$DOTFILES/config/ghostty/config" "$HOME/.config/ghostty/config"
 
+echo "Neovim (config kickstart.nvim)..."
+link "$DOTFILES/config/nvim" "$HOME/.config/nvim"
+
 echo "herdr (runtime dos agentes)..."
 link "$DOTFILES/config/herdr/config.toml" "$HOME/.config/herdr/config.toml"
 

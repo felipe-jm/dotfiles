@@ -42,6 +42,7 @@ Brewfile                   pacotes do Homebrew
 link.sh                    cria todos os symlinks (idempotente)
 setup.sh                   instalacao completa numa maquina nova
 config/ghostty/config      terminal Ghostty
+config/nvim/               Neovim (kickstart.nvim + ajustes)
 config/herdr/config.toml   herdr (runtime dos agentes)
 config/aerospace/          AeroSpace (window manager)
 bin/                       scripts auxiliares -> ~/.local/bin
