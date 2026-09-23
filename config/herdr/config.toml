@@ -3,9 +3,14 @@
 onboarding = false
 
 [theme]
-name = "terminal"
+name = "catppuccin"
 
 auto_switch = false
+
+# Barra lateral em crust e painel em mantle (fundo do Ghostty): separa as duas áreas.
+[theme.custom]
+sidebar_bg = "#11111b"
+
 [terminal]
 shell_mode = "auto"
 new_cwd = "follow"
@@ -41,7 +46,16 @@ type = "shell"
 command = "~/.local/bin/herdr-jcode-tab"
 description = "nova aba com jcode"
 
+# Nova aba com Claude Code rodando (espelho do binding acima).
+[[keys.command]]
+key = "prefix+shift+c"
+type = "shell"
+command = "~/.local/bin/herdr-claude-tab"
+description = "nova aba com claude code"
+
 [ui]
+# Moldura também no pane único: é o que desenha a linha entre a barra lateral e o conteúdo.
+pane_borders = "always"
 status_indicators = "symbols"
 window_title = "{workspace} · {tab}"
 

@@ -20,8 +20,8 @@ Os atalhos `Cmd+...` do Ghostty enviam `ctrl+b` + a tecla de ação.
 
 | Atalho | Ação |
 | --- | --- |
-| `Cmd+Ctrl+D` | split vertical |
-| `Cmd+Ctrl+Shift+D` | split horizontal |
+| `Cmd+D` (ou `Cmd+Ctrl+D`) | split vertical (pane novo com shell, mesma aba) |
+| `Cmd+Shift+D` (ou `Cmd+Ctrl+Shift+D`) | split horizontal |
 | `Cmd+Shift+Enter` | zoom no pane |
 | `ctrl+b h/j/k/l` | mover entre panes |
 | `Cmd+Ctrl+Tab` | alterna os dois últimos panes |

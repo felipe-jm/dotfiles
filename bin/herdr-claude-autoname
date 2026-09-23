@@ -1,0 +1,140 @@
+#!/usr/bin/env bash
+# Renomeia automaticamente as abas herdr que rodam Claude Code, espelhando o
+# herdr-jcode-autoname. Fonte do nome, em ordem:
+#   1. linha {"type":"custom-title"} do transcript jsonl da sessao (gerada pelo
+#      Stop hook ~/.claude/hooks/session-title.py via Haiku, em PT-BR);
+#   2. titulo OSC que o proprio Claude Code emite (terminal_title_stripped no
+#      `herdr agent list`), enquanto o hook ainda nao rodou.
+#
+#   herdr-claude-autoname --once            uma varredura
+#   herdr-claude-autoname --daemon          loop
+#   herdr-claude-autoname --ensure-daemon   sobe o daemon se nao estiver rodando
+#
+# So renomeia abas com nome provisorio (claude, claude-2, ... ou numerico) ou
+# cujo nome atual foi gerado por este script. Aba renomeada a mao nunca e tocada.
+set -euo pipefail
+
+HERDR="${HERDR_BIN_PATH:-herdr}"
+LOCK="${TMPDIR:-/tmp}/herdr-claude-autoname.pid"
+STATE_DIR="$HOME/.local/state/herdr-claude-autoname"
+PROJECTS_DIR="$HOME/.claude/projects"
+LABEL_MAX=40
+mkdir -p "$STATE_DIR"
+
+# agentes claude: "<pane_id>\t<tab_id>\t<tab_label>\t<session_id>\t<cwd>\t<osc_title>"
+claude_panes() {
+  agents=$("$HERDR" agent list 2>/dev/null) || return 0
+  tabs=$("$HERDR" tab list 2>/dev/null) || return 0
+  python3 - "$agents" "$tabs" <<'PY'
+import json, sys
+agents = json.loads(sys.argv[1])["result"]["agents"]
+tabs = {t["tab_id"]: t for t in json.loads(sys.argv[2])["result"]["tabs"]}
+for a in agents:
+    if a.get("agent") != "claude":
+        continue
+    sess = a.get("agent_session") or {}
+    sid = sess.get("value", "") if sess.get("kind") == "id" else ""
+    t = tabs.get(a.get("tab_id"), {})
+    print(a["pane_id"], a.get("tab_id", ""), t.get("label", ""), sid,
+          a.get("cwd", ""), a.get("terminal_title_stripped", ""), sep="\t")
+PY
+}
+
+# $1 = session_id, $2 = cwd -> caminho do transcript jsonl (ou falha)
+transcript_path() {
+  local sid="$1" cwd="$2" enc f
+  enc=$(printf '%s' "$cwd" | sed 's#[/.]#-#g')
+  f="$PROJECTS_DIR/$enc/$sid.jsonl"
+  [[ -f "$f" ]] && { printf '%s' "$f"; return 0; }
+  f=$(ls "$PROJECTS_DIR"/*/"$sid.jsonl" 2>/dev/null | head -1)
+  [[ -n "$f" ]] && { printf '%s' "$f"; return 0; }
+  return 1
+}
+
+# $1 = transcript -> ultimo custom-title (ou falha)
+transcript_title() {
+  python3 - "$1" <<'PY'
+import json, sys
+title = None
+with open(sys.argv[1], "rb") as fh:
+    for raw in fh:
+        if b'"custom-title"' not in raw:
+            continue
+        try:
+            reg = json.loads(raw.decode("utf8", "replace"))
+        except ValueError:
+            continue
+        if isinstance(reg, dict) and reg.get("type") == "custom-title" and reg.get("customTitle"):
+            title = reg["customTitle"]
+if not title:
+    sys.exit(1)
+print(title)
+PY
+}
+
+# $1 = titulo bruto -> label curto pra aba (ou falha)
+to_label() {
+  python3 - "$1" "$LABEL_MAX" <<'PY'
+import re, sys, unicodedata
+t, mx = sys.argv[1], int(sys.argv[2])
+t = " ".join(t.split()).strip(" \"'`*_-–—:,.")
+t = re.sub(r"[…]+$", "", t).strip()
+if not t or t.lower() in ("claude", "claude code"):
+    sys.exit(1)
+if len(t) > mx:
+    cut = t[:mx].rsplit(" ", 1)[0]
+    t = (cut if len(cut) >= 8 else t[:mx]).rstrip(" ,.:-") + "…"
+print(unicodedata.normalize("NFC", t))
+PY
+}
+
+scan_once() {
+  while IFS=$'\t' read -r pane tab label sid cwd osc; do
+    [[ -n "$pane" && -n "$tab" ]] || continue
+
+    raw=""
+    if [[ -n "$sid" ]] && f=$(transcript_path "$sid" "$cwd"); then
+      raw=$(transcript_title "$f" 2>/dev/null || true)
+    fi
+    [[ -z "$raw" ]] && raw="$osc"
+    new=$(to_label "$raw" 2>/dev/null) || continue
+
+    key="${sid:-$tab}"
+    owned="$STATE_DIR/${key//[^A-Za-z0-9_.:-]/_}.name"
+
+    # Renomeia se a aba ainda e' provisoria, se o nome atual foi gerado por nos
+    # (arquivo de estado), ou se ele bate com o resumo atual (adocao).
+    # Nome escolhido a mao nunca e' sobrescrito.
+    if [[ ! "$label" =~ ^(claude(-[0-9]+)?|[0-9]+)$ ]]; then
+      if [[ -f "$owned" && "$(cat "$owned")" == "$label" ]]; then
+        :
+      elif [[ "$new" == "$label" ]]; then
+        printf '%s' "$label" > "$owned"
+      else
+        continue
+      fi
+    fi
+
+    [[ "$new" == "$label" ]] && continue
+
+    "$HERDR" tab rename "$tab" "$new" >/dev/null 2>&1 || continue
+    printf '%s' "$new" > "$owned"
+    "$HERDR" pane report-metadata "$pane" --source claude-autoname \
+      --title "$new" >/dev/null 2>&1 || true
+  done < <(claude_panes)
+}
+
+case "${1:---once}" in
+  --once) scan_once ;;
+  --daemon)
+    echo $$ > "$LOCK"
+    trap 'rm -f "$LOCK"' EXIT
+    while "$HERDR" status server >/dev/null 2>&1; do scan_once; sleep 5; done
+    ;;
+  --ensure-daemon)
+    if [[ -f "$LOCK" ]] && kill -0 "$(cat "$LOCK" 2>/dev/null)" 2>/dev/null; then exit 0; fi
+    if pgrep -f "herdr-claude-autoname --daemon" >/dev/null 2>&1; then exit 0; fi
+    nohup "$0" --daemon >/dev/null 2>&1 &
+    ;;
+  *) echo "uso: $0 [--once|--daemon|--ensure-daemon]" >&2; exit 2 ;;
+esac

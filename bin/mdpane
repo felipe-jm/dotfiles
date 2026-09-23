@@ -1,0 +1,66 @@
+#!/bin/zsh
+# mdpane — abre um markdown num split do herdr, renderizado pelo glow.
+#
+# Uso: mdpane <arquivo.md | file:///caminho/arquivo.md | arquivo.md:linha>
+#      (sem argumento: lê HERDR_PLUGIN_CLICKED_URL — Ctrl+clique via plugin md-glow)
+#
+# Divide o pane focado (ou o pane de onde foi chamado) para a direita e roda
+# `glow -t` no pane novo. Clicar em outro doc reaproveita o lugar: o viewer
+# anterior da mesma aba é fechado antes. `q` no glow fecha o pane.
+# Fora do herdr (servidor parado), cai no editor de texto padrão do macOS.
+
+set -u
+HERDR=/opt/homebrew/bin/herdr
+JQ=/usr/bin/jq; [[ -x $JQ ]] || JQ=/opt/homebrew/bin/jq
+STATE_DIR="$HOME/.cache/mdpane"
+
+alvo="${1:-${HERDR_PLUGIN_CLICKED_URL:-}}"
+[[ -n $alvo ]] || { print -u2 "uso: mdpane <arquivo.md>"; exit 2; }
+
+# file:///a%20b.md -> /a b.md ; remove sufixo :linha[:coluna]
+alvo=$(/usr/bin/python3 - "$alvo" <<'PY'
+import re, sys, urllib.parse
+s = sys.argv[1]
+if s.startswith("file://"):
+    s = urllib.parse.unquote(urllib.parse.urlparse(s).path)
+s = re.sub(r":\d+(:\d+)?$", "", s)
+print(s)
+PY
+)
+[[ $alvo == /* ]] || alvo="$PWD/$alvo"
+
+if [[ ! -f $alvo ]]; then
+  print -u2 "mdpane: arquivo não existe: $alvo"
+  exit 1
+fi
+
+if ! $HERDR pane list >/dev/null 2>&1; then
+  exec /usr/bin/open -t "$alvo"
+fi
+
+# Pane de origem: o que chamou (dentro do herdr) ou o focado (clique vindo do macOS).
+origem="${HERDR_PANE_ID:-}"
+if [[ -z $origem ]]; then
+  origem=$($HERDR pane list | $JQ -r '.result.panes[] | select(.focused) | .pane_id' | head -1)
+fi
+[[ -n $origem ]] || { print -u2 "mdpane: nenhum pane focado"; exit 1; }
+
+aba=$($HERDR pane get "$origem" | $JQ -r '.result.pane.tab_id')
+mkdir -p "$STATE_DIR"
+estado="$STATE_DIR/${aba//[:\/]/_}"
+
+# Fecha o viewer anterior desta aba, se ainda existir (e não for a própria origem).
+if [[ -f $estado ]]; then
+  anterior=$(<"$estado")
+  if [[ $anterior != "$origem" ]] && $HERDR pane get "$anterior" >/dev/null 2>&1; then
+    $HERDR pane close "$anterior" >/dev/null 2>&1
+  fi
+fi
+
+novo=$($HERDR pane split "$origem" --direction right --cwd "${alvo:h}" --no-focus \
+  | $JQ -r '.result.pane.pane_id')
+[[ -n $novo && $novo != null ]] || { print -u2 "mdpane: split falhou"; exit 1; }
+
+print -r -- "$novo" > "$estado"
+$HERDR pane rename "$novo" "md: ${alvo:t}" >/dev/null 2>&1
+$HERDR pane run "$novo" "glow -t ${(q)alvo}; exit" >/dev/null

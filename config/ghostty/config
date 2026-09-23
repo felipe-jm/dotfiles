@@ -2,6 +2,8 @@
 
 # Aparência
 theme = Catppuccin Mocha
+# Mocha mais escuro: fundo mantle (#181825) no lugar do base (#1e1e2e)
+background = 181825
 font-family = "JetBrainsMono Nerd Font"
 font-size = 14
 font-thicken = true
@@ -51,8 +53,9 @@ keybind = cmd+shift+zero=reset_font_size
 
 # ---- herdr: Cmd+... -> prefix (ctrl+b) + acao ----
 # Cada atalho envia ctrl+b (prefix do herdr) seguido da tecla de acao.
-# Ctrl+A continua livre para o Jcode. Cmd+N/T/W/D/Enter sao itens de menu
-# do macOS e nao podem ser remapeados.
+# Ctrl+A continua livre para o Jcode. Cmd+N/T/W/Enter sao itens de menu
+# do macOS e nao podem ser remapeados. Cmd+D e Cmd+Shift+D sao defaults do
+# proprio Ghostty (new_split) e podem ser sobrescritos desde o 1.3.1.
 
 # Trocar de aba: Cmd+1..9 ; Cmd+0 abre o goto
 keybind = super+zero=text:\x02g
@@ -71,8 +74,14 @@ keybind = super+ctrl+zero=text:\x02p
 # Obs: Cmd+W puro e' item de menu do macOS e fecharia o Ghostty.
 keybind = super+ctrl+w=text:\x02X
 
-# *** Cmd+Shift+N -> NOVA ABA COM JCODE (abre direto, nomeia sozinha) ***
+# *** Cmd+Shift+J -> NOVA ABA COM JCODE (abre direto, nomeia sozinha) ***
+# Sobrescreve o default write_screen_file do Ghostty, que nao usamos.
+keybind = super+shift+j=text:\x02J
+# Cmd+Shift+N mantido como alias do mesmo atalho (habito antigo)
 keybind = super+shift+n=text:\x02J
+# *** Cmd+Shift+C -> NOVA ABA COM CLAUDE CODE (bypass permissions) ***
+# -> ~/.local/bin/herdr-claude-tab via prefix+shift+c no herdr
+keybind = super+shift+c=text:\x02C
 # Cmd+Shift+T -> nova aba de shell
 keybind = super+shift+t=text:\x02c
 # Cmd+Shift+E -> goto (seletor)
@@ -81,7 +90,12 @@ keybind = super+shift+e=text:\x02g
 keybind = super+shift+s=text:\x02w
 # Cmd+Shift+Enter -> zoom no pane
 keybind = super+shift+enter=text:\x02z
-# Splits
+# Splits: Cmd+D / Cmd+Shift+D -> split do HERDR (pane novo com shell na
+# mesma aba). Sem isso, o default do Ghostty (new_split) abre um surface
+# novo cujo zsh faz `exec herdr` e vira um 2o cliente da MESMA aba.
+keybind = super+d=text:\x02v
+keybind = super+shift+d=text:\x02-
+# Aliases antigos, mantidos por compatibilidade
 keybind = super+ctrl+d=text:\x02v
 keybind = super+ctrl+shift+d=text:\x02-
 
