@@ -177,3 +177,6 @@ fi
 
 # Secrets locais (tokens, chaves). Nao versionado.
 [ -f ~/.zsh_secrets ] && source ~/.zsh_secrets
+
+# Perfis de conta do Claude Code: conta | conta <perfil> | conta nova <nome> [email] | conta lista
+[ -f ~/.claude/scripts/claude-perfis.zsh ] && source ~/.claude/scripts/claude-perfis.zsh
