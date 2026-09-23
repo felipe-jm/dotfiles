@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Cria uma aba herdr rodando o Claude Code, sem perguntar nada.
-# Espelho de ~/.local/bin/herdr-jcode-tab. A aba nasce com o label "claude";
+# A aba nasce com o label "claude";
 # o herdr detecta o agente sozinho (kind "claude") e mostra o estado na sidebar.
 set -euo pipefail
 

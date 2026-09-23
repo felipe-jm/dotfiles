@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Cria uma aba herdr rodando o Oh My Pi (omp), sem perguntar nada.
+# Espelho de ~/.local/bin/herdr-claude-tab. A aba nasce com o label "omp";
+# o herdr detecta o agente sozinho (kind "omp") e mostra o estado na sidebar.
+set -euo pipefail
+
+herdr="${HERDR_BIN_PATH:-herdr}"
+cwd="${HERDR_ACTIVE_PANE_CWD:-$PWD}"
+
+out=$("$herdr" tab create --cwd "$cwd" --label omp --focus)
+pane=$(printf '%s' "$out" | python3 -c 'import json,sys;print(json.load(sys.stdin)["result"]["root_pane"]["pane_id"])')
+
+"$herdr" pane send-text "$pane" 'clear; omp' >/dev/null
+"$herdr" pane send-keys "$pane" enter >/dev/null
+
+# O nome definitivo da aba vem do herdr-omp-autoname (titulo da sessao que o
+# omp gera e emite como titulo OSC do terminal).
+~/.local/bin/herdr-omp-autoname --ensure-daemon >/dev/null 2>&1 || true

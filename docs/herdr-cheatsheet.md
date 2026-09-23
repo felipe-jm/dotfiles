@@ -12,7 +12,7 @@ Os atalhos `Cmd+...` do Ghostty enviam `ctrl+b` + a tecla de ação.
 | `Cmd+0` / `Cmd+Shift+E` | goto (seletor) |
 | `Cmd+Ctrl+0` | aba anterior |
 | `Ctrl+Tab` | última aba usada (MRU, igual Dia); apertar de novo volta |
-| `Cmd+Shift+N` | **nova aba com Jcode** (nomeia sozinha) |
+| `Cmd+Shift+O` | **nova aba com omp** (nomeia sozinha) |
 | `Cmd+Shift+T` | nova aba de shell |
 | `Cmd+Ctrl+W` | fechar aba |
 | `ctrl+b shift+t` | renomear aba |
@@ -38,8 +38,6 @@ Os atalhos `Cmd+...` do Ghostty enviam `ctrl+b` + a tecla de ação.
 
 | Comando | Ação |
 | --- | --- |
-| `jc` | nova aba com Jcode, nomeada automaticamente |
-| `proj [nome]` | workspace com abas jcode/shell/git/server/logs |
 | `hw [nome]` | workspace para o diretório atual |
 | `tw <nome>` | nova aba nomeada |
 | `hs` | status do servidor |
@@ -47,22 +45,21 @@ Os atalhos `Cmd+...` do Ghostty enviam `ctrl+b` + a tecla de ação.
 | `hk` | parar o servidor (encerra tudo) |
 | `NO_HERDR=1 zsh` | shell sem entrar no herdr |
 
-## Jcode dentro do herdr
+## Agentes dentro do herdr (omp e Claude Code)
 
-A sidebar mostra cada sessão Jcode como agente, com estado:
+A sidebar mostra cada sessão de agente com estado:
 
 - **working** — rodando
 - **blocked** — esperando decisão sua
 - **idle / done** — pronto para o próximo pedido
 
-A aba é renomeada sozinha a partir do primeiro pedido da sessão
-(ex.: "Ajuste Design System"). Renomear à mão desativa o auto-nome.
+A aba é renomeada sozinha com o título da sessão
+(ex.: "Capital do Peru"). Renomear à mão desativa o auto-nome.
 
 Peças:
 
-- `~/.local/bin/herdr-jcode-tab` — abre a aba com Jcode
-- `~/.local/bin/herdr-jcode-autoname` — daemon que resume e renomeia
-- `~/.local/bin/jcode-herdr-agent-state` — hooks do Jcode que reportam estado
+- `~/.local/bin/herdr-omp-tab` / `herdr-claude-tab` — abrem a aba com o agente
+- `~/.local/bin/herdr-omp-autoname` / `herdr-claude-autoname` — daemons que renomeiam a aba
 - `~/.config/herdr/config.toml` — teclas, tema, sidebar
 
 Dica: o número da aba não é reindexado quando você fecha abas, então
@@ -72,4 +69,4 @@ em sequência e `Cmd+Ctrl+,`/`.` para pular direto entre agentes.
 Diagnóstico: `herdr agent list`, `herdr agent explain <pane>`, `herdr integration status`.
 
 > Não rode `tmux` dentro do herdr: a detecção de agentes passa a ver o tmux
-> como processo do pane e o estado do Jcode some.
+> como processo do pane e o estado do agente some.

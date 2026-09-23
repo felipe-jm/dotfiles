@@ -132,7 +132,7 @@ export _ZO_DOCTOR=0
 
 # TERMINAL_API_KEY vive em ~/.zsh_secrets (nao versionado)
 
-# ---------- herdr workflow (Jcode) ----------
+# ---------- herdr workflow (agentes) ----------
 # herdr e' o runtime dos agentes; substitui o tmux.
 alias hs='herdr status'
 alias hl='herdr workspace list'
@@ -149,19 +149,6 @@ hw() {
 tw() {
   local name="${1:?uso: tw <nome>}"
   herdr tab create --cwd "$PWD" --label "$name" --focus >/dev/null
-}
-
-# jc: nova aba com Jcode rodando, nomeada automaticamente pelo primeiro pedido
-jc() { ~/.local/bin/herdr-jcode-tab; }
-
-# proj [nome]: workspace com as abas do fluxo Lucro Rural
-proj() {
-  local name="${1:-$(basename "$PWD")}" d="$PWD" t
-  herdr workspace create --cwd "$d" --label "$name" --focus >/dev/null
-  for t in shell git server logs; do
-    herdr tab create --cwd "$d" --label "$t" --no-focus >/dev/null
-  done
-  ~/.local/bin/herdr-jcode-tab
 }
 
 export PATH="$HOME/.local/bin:$PATH"

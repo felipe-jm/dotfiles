@@ -1,4 +1,4 @@
-# ---- Ghostty config (otimizado p/ Jcode + tmux) ----
+# ---- Ghostty config (otimizado p/ herdr + agentes) ----
 
 # Aparência
 theme = Catppuccin Mocha
@@ -53,7 +53,7 @@ keybind = cmd+shift+zero=reset_font_size
 
 # ---- herdr: Cmd+... -> prefix (ctrl+b) + acao ----
 # Cada atalho envia ctrl+b (prefix do herdr) seguido da tecla de acao.
-# Ctrl+A continua livre para o Jcode. Cmd+N/T/W/Enter sao itens de menu
+# Cmd+N/T/W/Enter sao itens de menu
 # do macOS e nao podem ser remapeados. Cmd+D e Cmd+Shift+D sao defaults do
 # proprio Ghostty (new_split) e podem ser sobrescritos desde o 1.3.1.
 
@@ -74,11 +74,9 @@ keybind = super+ctrl+zero=text:\x02p
 # Obs: Cmd+W puro e' item de menu do macOS e fecharia o Ghostty.
 keybind = super+ctrl+w=text:\x02X
 
-# *** Cmd+Shift+J -> NOVA ABA COM JCODE (abre direto, nomeia sozinha) ***
-# Sobrescreve o default write_screen_file do Ghostty, que nao usamos.
-keybind = super+shift+j=text:\x02J
-# Cmd+Shift+N mantido como alias do mesmo atalho (habito antigo)
-keybind = super+shift+n=text:\x02J
+# *** Cmd+Shift+O -> NOVA ABA COM OMP (abre direto, nomeia sozinha) ***
+# -> ~/.local/bin/herdr-omp-tab via prefix+shift+o no herdr
+keybind = super+shift+o=text:\x02O
 # *** Cmd+Shift+C -> NOVA ABA COM CLAUDE CODE (bypass permissions) ***
 # -> ~/.local/bin/herdr-claude-tab via prefix+shift+c no herdr
 keybind = super+shift+c=text:\x02C

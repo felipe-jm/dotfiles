@@ -1,0 +1,86 @@
+#!/usr/bin/env bash
+# Renomeia automaticamente as abas herdr que rodam o Oh My Pi (omp), espelhando
+# o herdr-claude-autoname. O omp gera o titulo da sessao a partir do primeiro
+# pedido e o emite como titulo OSC: "π > <titulo>" parado, "π <spinner> <titulo>"
+# trabalhando. Antes do titulo existir, o OSC traz o nome da pasta (ignorado).
+#
+#   herdr-omp-autoname --once            uma varredura
+#   herdr-omp-autoname --daemon          loop
+#   herdr-omp-autoname --ensure-daemon   sobe o daemon se nao estiver rodando
+#
+# So renomeia abas com nome provisorio (omp, omp-2, ... ou numerico) ou cujo
+# nome atual foi gerado por este script. Aba renomeada a mao nunca e tocada.
+set -euo pipefail
+
+HERDR="${HERDR_BIN_PATH:-herdr}"
+LOCK="${TMPDIR:-/tmp}/herdr-omp-autoname.pid"
+STATE_DIR="$HOME/.local/state/herdr-omp-autoname"
+LABEL_MAX=40
+mkdir -p "$STATE_DIR"
+
+# abas omp com titulo pronto: "<pane_id>\t<tab_id>\t<tab_label>\t<label novo>"
+omp_panes() {
+  agents=$("$HERDR" agent list 2>/dev/null) || return 0
+  tabs=$("$HERDR" tab list 2>/dev/null) || return 0
+  python3 - "$agents" "$tabs" "$LABEL_MAX" <<'PY'
+import json, os, re, sys, unicodedata
+agents = json.loads(sys.argv[1])["result"]["agents"]
+tabs = {t["tab_id"]: t for t in json.loads(sys.argv[2])["result"]["tabs"]}
+mx = int(sys.argv[3])
+for a in agents:
+    if a.get("agent") != "omp":
+        continue
+    # Tira o prefixo "π", o ">" de parado e o spinner braille de trabalhando.
+    t = re.sub(r"^\s*π\s*(>|[\u2800-\u28ff])?\s*", "", a.get("terminal_title_stripped", ""))
+    t = " ".join(t.split()).strip(" \"'`*_-–—:,.")
+    pasta = os.path.basename((a.get("cwd") or "").rstrip("/"))
+    if not t or t.lower() in ("omp", "pi", "π") or t == pasta:
+        continue
+    if len(t) > mx:
+        cut = t[:mx].rsplit(" ", 1)[0]
+        t = (cut if len(cut) >= 8 else t[:mx]).rstrip(" ,.:-") + "…"
+    label = tabs.get(a.get("tab_id"), {}).get("label", "")
+    print(a["pane_id"], a.get("tab_id", ""), label, unicodedata.normalize("NFC", t), sep="\t")
+PY
+}
+
+scan_once() {
+  while IFS=$'\t' read -r pane tab label new; do
+    [[ -n "$pane" && -n "$tab" && -n "$new" ]] || continue
+    owned="$STATE_DIR/${tab//[^A-Za-z0-9_.:-]/_}.name"
+
+    # Renomeia se a aba ainda e' provisoria, se o nome atual foi gerado por nos
+    # (arquivo de estado), ou se ele bate com o titulo atual (adocao).
+    if [[ ! "$label" =~ ^(omp(-[0-9]+)?|[0-9]+)$ ]]; then
+      if [[ -f "$owned" && "$(cat "$owned")" == "$label" ]]; then
+        :
+      elif [[ "$new" == "$label" ]]; then
+        printf '%s' "$label" > "$owned"
+      else
+        continue
+      fi
+    fi
+
+    [[ "$new" == "$label" ]] && continue
+
+    "$HERDR" tab rename "$tab" "$new" >/dev/null 2>&1 || continue
+    printf '%s' "$new" > "$owned"
+    "$HERDR" pane report-metadata "$pane" --source omp-autoname \
+      --title "$new" >/dev/null 2>&1 || true
+  done < <(omp_panes)
+}
+
+case "${1:---once}" in
+  --once) scan_once ;;
+  --daemon)
+    echo $$ > "$LOCK"
+    trap 'rm -f "$LOCK"' EXIT
+    while "$HERDR" status server >/dev/null 2>&1; do scan_once; sleep 5; done
+    ;;
+  --ensure-daemon)
+    if [[ -f "$LOCK" ]] && kill -0 "$(cat "$LOCK" 2>/dev/null)" 2>/dev/null; then exit 0; fi
+    if pgrep -f "herdr-omp-autoname --daemon" >/dev/null 2>&1; then exit 0; fi
+    nohup "$0" --daemon >/dev/null 2>&1 &
+    ;;
+  *) echo "uso: $0 [--once|--daemon|--ensure-daemon]" >&2; exit 2 ;;
+esac

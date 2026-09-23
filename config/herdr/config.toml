@@ -38,13 +38,12 @@ workspace_picker = "prefix+w"       # Cmd+Shift+S
 toggle_sidebar = "prefix+b"
 detach = "prefix+q"
 
-# Nova aba com Jcode rodando, ja marcada para o auto-nome
-# Obs: prefix+j e' focus_pane_down por padrao, entao usamos prefix+shift+j.
+# Nova aba com o omp rodando, nomeada pelo titulo da sessao (herdr-omp-autoname).
 [[keys.command]]
-key = "prefix+shift+j"
+key = "prefix+shift+o"
 type = "shell"
-command = "~/.local/bin/herdr-jcode-tab"
-description = "nova aba com jcode"
+command = "~/.local/bin/herdr-omp-tab"
+description = "nova aba com omp"
 
 # Nova aba com Claude Code rodando (espelho do binding acima).
 [[keys.command]]

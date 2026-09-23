@@ -75,6 +75,6 @@ prefixo. Os principais:
 | `Cmd+Ctrl+[` / `]` | workspace anterior / proximo |
 | `Cmd+Shift+1..9` | ir para o workspace N |
 | `Cmd+0` | goto (seletor) |
-| `Cmd+Shift+N` | nova aba com Jcode |
+| `Cmd+Shift+O` | nova aba com omp |
 
 A lista completa esta em [`docs/herdr-cheatsheet.md`](docs/herdr-cheatsheet.md).

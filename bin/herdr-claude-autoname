@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Renomeia automaticamente as abas herdr que rodam Claude Code, espelhando o
-# herdr-jcode-autoname. Fonte do nome, em ordem:
+# Renomeia automaticamente as abas herdr que rodam Claude Code. Fonte do
+# nome, em ordem:
 #   1. linha {"type":"custom-title"} do transcript jsonl da sessao (gerada pelo
 #      Stop hook ~/.claude/hooks/session-title.py via Haiku, em PT-BR);
 #   2. titulo OSC que o proprio Claude Code emite (terminal_title_stripped no
