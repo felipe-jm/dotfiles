@@ -11,6 +11,7 @@ Os atalhos `Cmd+...` do Ghostty enviam `ctrl+b` + a tecla de ação.
 | `Cmd+Shift+[` / `Cmd+Shift+]` | aba anterior / próxima |
 | `Cmd+0` / `Cmd+Shift+E` | goto (seletor) |
 | `Cmd+Ctrl+0` | aba anterior |
+| `Ctrl+Tab` | última aba usada (MRU, igual Dia); apertar de novo volta |
 | `Cmd+Shift+N` | **nova aba com Jcode** (nomeia sozinha) |
 | `Cmd+Shift+T` | nova aba de shell |
 | `Cmd+Ctrl+W` | fechar aba |
