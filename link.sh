@@ -33,6 +33,9 @@ link "$DOTFILES/config/nvim" "$HOME/.config/nvim"
 echo "herdr (runtime dos agentes)..."
 link "$DOTFILES/config/herdr/config.toml" "$HOME/.config/herdr/config.toml"
 
+echo "omp (extensoes)..."
+link "$DOTFILES/config/omp/extensions/model-role-status.ts" "$HOME/.omp/agent/extensions/model-role-status.ts"
+
 echo "AeroSpace (window manager)..."
 link "$DOTFILES/config/aerospace/aerospace.toml" "$HOME/.config/aerospace/aerospace.toml"
 
