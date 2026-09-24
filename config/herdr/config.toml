@@ -24,7 +24,7 @@ new_tab = "prefix+c"                # Cmd+Shift+T
 rename_tab = "prefix+shift+t"
 close_tab = "prefix+shift+x"        # Cmd+Ctrl+W
 previous_tab = "prefix+p"           # Cmd+Shift+[ e Cmd+Ctrl+0
-next_tab = "prefix+n"               # Cmd+Shift+]
+next_tab = "prefix+semicolon"        # Ctrl+Tab
 previous_agent = "prefix+comma"     # Cmd+Ctrl+, (agente anterior, qualquer workspace)
 next_agent = "prefix+."             # Cmd+Ctrl+. (proximo agente)
 previous_workspace = "prefix+["     # Cmd+Ctrl+[
@@ -52,13 +52,6 @@ type = "shell"
 command = "~/.local/bin/herdr-claude-tab"
 description = "nova aba com claude code"
 
-# Ctrl+Tab (Ghostty -> ctrl+b ;): volta para a ultima aba usada, igual ao Dia.
-# Apertar de novo alterna entre as duas. Pilha MRU mantida pelo daemon herdr-tab-mru.
-[[keys.command]]
-key = "prefix+semicolon"
-type = "shell"
-command = "~/.local/bin/herdr-tab-mru --toggle"
-description = "ultima aba usada (mru)"
 
 [ui]
 # Moldura também no pane único: é o que desenha a linha entre a barra lateral e o conteúdo.

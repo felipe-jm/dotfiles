@@ -121,5 +121,6 @@ keybind = super+ctrl+period=text:\x02.
 # Cmd+Ctrl+Tab -> alterna entre os dois ultimos panes
 keybind = super+ctrl+tab=text:\x02\t
 
-# Ctrl+Tab -> ultima aba usada no herdr (MRU, igual Dia) -> ~/.local/bin/herdr-tab-mru
+# Ctrl+Tab -> próxima aba do workspace, na ordem da barra.
 keybind = ctrl+tab=text:\x02;
+keybind = ctrl+shift+tab=text:\x02p
