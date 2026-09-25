@@ -19,8 +19,19 @@ setopt appendhistory
 bindkey '^[[A' history-search-backward
 bindkey '^[[B' history-search-forward
 
+# Completion: checagem completa (compaudit + dump) no máximo 1x por dia; nos
+# outros shells usa o dump em cache. Precisa vir antes do nvm e do gcloud,
+# que chamariam compinit sem cache.
+autoload -Uz compinit
+_zcd=(~/.zcompdump(N.mh-24))
+if (( $#_zcd )); then compinit -C; else compinit; fi
+unset _zcd
+
+# nvm sob demanda: node default direto no PATH, sem `nvm use` (custava ~3 s).
+# Ao trocar a versão default (`nvm alias default X`), atualizar o caminho abaixo.
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+export PATH="$NVM_DIR/versions/node/v20.20.1/bin:$PATH"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" --no-use  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
 export PATH="$HOME/.local/bin:$PATH"
@@ -45,7 +56,8 @@ export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/tools/bin
 export PATH=$PATH:$ANDROID_HOME/platform-tools
 #
-eval "$(rbenv init - zsh)"
+# rbenv: só os shims no PATH (o `rbenv init` custava ~0,4 s)
+export PATH="$HOME/.rbenv/shims:$PATH"
 
 # Added by Windsurf
 export PATH="/Users/felipejung/.codeium/windsurf/bin:$PATH"
@@ -59,7 +71,6 @@ source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
-source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # ---- Eza (better ls) -----
