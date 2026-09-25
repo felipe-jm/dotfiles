@@ -153,15 +153,6 @@ tw() {
 
 export PATH="$HOME/.local/bin:$PATH"
 
-# ---------- herdr: inicia automaticamente ----------
-# Os atalhos Cmd+... SO funcionam dentro do herdr.
-# Desative com: NO_HERDR=1 (ex.: `NO_HERDR=1 zsh`)
-if [[ -o interactive && -z "$HERDR_ENV" && -z "$TMUX" && -z "$NO_HERDR" \
-      && -z "$VSCODE_INJECTION" && -z "$INSIDE_EMACS" && "$TERM" != "dumb" ]] \
-   && command -v herdr >/dev/null 2>&1; then
-  exec herdr
-fi
-
 # Secrets locais (tokens, chaves). Nao versionado.
 [ -f ~/.zsh_secrets ] && source ~/.zsh_secrets
 
